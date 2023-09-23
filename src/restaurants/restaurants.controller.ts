@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { RestaurantsService } from './restaurants.service';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
@@ -13,8 +13,8 @@ export class RestaurantsController {
   }
 
   @Get()
-  findAll() {
-    return this.restaurantsService.allRestaurant();
+  findAll(@Body('typologies') typologies: number[]) {
+    return typologies?.length ? this.restaurantsService.allFilteredRestaurant(typologies) : this.restaurantsService.allRestaurant();
   }
 
   @Get(':id')
