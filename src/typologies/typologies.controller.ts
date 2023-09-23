@@ -17,6 +17,11 @@ export class TypologiesController {
     return this.typologiesService.findAll();
   }
 
+  @Get('/restaurants')
+  findAllToRestaurant(){
+    return this.typologiesService.findAllWithRestaurants();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.typologiesService.findOne(+id);

@@ -16,6 +16,16 @@ export class TypologiesService {
     return this.prisma.typologies.findMany();
   }
 
+  findAllWithRestaurants(){
+    return this.prisma.typologies.findMany({
+      where: {
+        restaurant_typology: {
+          some: {}
+        }
+      }
+    })
+  }
+
   findOne(id: number) {
     return this.prisma.typologies.findFirst({
       where: {
