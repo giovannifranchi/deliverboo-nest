@@ -10,8 +10,6 @@ export class RestaurantsService {
   constructor(private prisma: PrismaService){}
   async create(createRestaurantDto: CreateRestaurantDto, file: File) {
     try{
-
-      return file;
       createRestaurantDto.slug = slugify(createRestaurantDto.name, {lower: true, strict: true});
       const { restaurant_typologyIds, ...restaurantData } = createRestaurantDto;
   
