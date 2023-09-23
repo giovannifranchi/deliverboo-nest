@@ -10,7 +10,6 @@ export class RestaurantsService {
   create(createRestaurantDto: CreateRestaurantDto) {
     try{
       createRestaurantDto.slug = slugify(createRestaurantDto.name, {lower: true, strict: true});
-      
       return this.prisma.restaurants.create({
         data: createRestaurantDto
       });

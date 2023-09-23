@@ -127,8 +127,8 @@ model restaurants {
   delivery_cost       Decimal               @default(0.00) @db.Decimal(4, 2)
   min_purchase        Decimal               @default(0.00) @db.Decimal(4, 2)
   image               String?               @db.VarChar(255)
-  created_at          DateTime?             @db.Timestamp(0)
-  updated_at          DateTime?             @db.Timestamp(0)
+  created_at          DateTime              @default(now())
+  updated_at          DateTime              @updatedAt
   orders              orders[]
   products            products[]
   restaurant_typology restaurant_typology[]
