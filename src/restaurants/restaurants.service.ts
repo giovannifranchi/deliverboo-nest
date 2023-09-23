@@ -13,7 +13,7 @@ export class RestaurantsService {
     try{
 
       createRestaurantDto.slug = slugify(createRestaurantDto.name, {lower: true, strict: true});
-      createRestaurantDto.image = file ? file.filename : null;
+      createRestaurantDto.image = file ? 'uploads/' + file.filename : null;
       const { restaurant_typologyIds, ...restaurantData } = createRestaurantDto;
   
       const createdReastaurant = await this.prisma.restaurants.create({
