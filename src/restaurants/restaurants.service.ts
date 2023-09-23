@@ -11,9 +11,7 @@ export class RestaurantsService {
   constructor(private prisma: PrismaService){}
   async create(createRestaurantDto: CreateRestaurantDto, file: Express.Multer.File) {
     try{
-
-      if(file) createRestaurantDto.image = '/uploads/' + file.filename;
-
+      
       createRestaurantDto.slug = slugify(createRestaurantDto.name, {lower: true, strict: true});
       const { restaurant_typologyIds, ...restaurantData } = createRestaurantDto;
   
@@ -30,9 +28,13 @@ export class RestaurantsService {
         })
       }
 
+      if(file) createdReastaurant.image = '/uploads/' + file.filename;
+
       return createdReastaurant;
+
     }catch(error){
-      return HttpErrorByCode;
+      console.log(error);
+      return error;
     }
 
   }
