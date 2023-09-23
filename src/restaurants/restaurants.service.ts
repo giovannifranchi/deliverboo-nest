@@ -15,10 +15,10 @@ export class RestaurantsService {
     return this.prisma.restaurants.findMany();
   }
 
-  async findOne(id: number) {
-    const restaurant = await this.prisma.restaurants.findUnique({
+  async findOne(slug: string) {
+    const restaurant = await this.prisma.restaurants.findFirst({
       where: {
-        id: id
+        slug: slug
       },
       include: {
         users: {
@@ -36,7 +36,7 @@ export class RestaurantsService {
       }
     });
 
-    if(!restaurant) throw new NotFoundException({ message: `Restaurant with ID ${id} not found` });
+    if(!restaurant) throw new NotFoundException({ message: `Restaurant not found` });
     
     //USE THIS PATH TO FLATTEN MANY TO MANY RELASHIONSHIPS INTO AN ARRAY OF JOINED OBJECTS AND OVERWRITE ITS PROPERTY
     const flatTypologies = restaurant.restaurant_typology.map(rt => rt.typologies);

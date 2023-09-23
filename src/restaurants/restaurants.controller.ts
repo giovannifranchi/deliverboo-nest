@@ -18,8 +18,8 @@ export class RestaurantsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.restaurantsService.findOne(+id);
+  findOne(@Param('slug') slug: string) {
+    return this.restaurantsService.findOne(slug);
   }
 
   @Patch(':id')
