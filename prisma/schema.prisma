@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model categories {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(40)
+  slug       String    @db.VarChar(50)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model failed_jobs {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  uuid       String   @unique(map: "failed_jobs_uuid_unique") @db.VarChar(255)
+  connection String   @db.Text
+  queue      String   @db.Text
+  payload    String   @db.LongText
+  exception  String   @db.LongText
+  failed_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model order_product {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  order_id   BigInt    @db.UnsignedBigInt
+  product_id BigInt    @db.UnsignedBigInt
+  quantity   Int       @db.UnsignedTinyInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  orders     orders    @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "order_product_order_id_foreign")
+  products   products  @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "order_product_product_id_foreign")
+
+  @@index([order_id], map: "order_product_order_id_foreign")
+  @@index([product_id], map: "order_product_product_id_foreign")
+}
+
+model orders {
+  id            BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  restaurant_id BigInt          @db.UnsignedBigInt
+  name          String          @db.VarChar(50)
+  email         String?         @db.VarChar(50)
+  address       String          @db.VarChar(50)
+  phone_number  String          @db.VarChar(15)
+  total_price   Decimal         @db.Decimal(5, 2)
+  created_at    DateTime?       @db.Timestamp(0)
+  updated_at    DateTime?       @db.Timestamp(0)
+  order_product order_product[]
+  restaurants   restaurants     @relation(fields: [restaurant_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "orders_restaurant_id_foreign")
+
+  @@index([restaurant_id], map: "orders_restaurant_id_foreign")
+}
+
+model password_resets {
+  email      String    @id @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+}
+
+model personal_access_tokens {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  tokenable_type String    @db.VarChar(255)
+  tokenable_id   BigInt    @db.UnsignedBigInt
+  name           String    @db.VarChar(255)
+  token          String    @unique(map: "personal_access_tokens_token_unique") @db.VarChar(64)
+  abilities      String?   @db.Text
+  last_used_at   DateTime? @db.Timestamp(0)
+  expires_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+
+  @@index([tokenable_type, tokenable_id], map: "personal_access_tokens_tokenable_type_tokenable_id_index")
+}
+
+model products {
+  id            BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  restaurant_id BigInt          @db.UnsignedBigInt
+  name          String          @db.VarChar(80)
+  slug          String          @db.VarChar(90)
+  description   String?         @db.Text
+  ingredients   String?         @db.Text
+  image         String?         @db.VarChar(255)
+  price         Decimal         @db.Decimal(4, 2)
+  discount      Float           @default(0.00)
+  is_visible    Boolean
+  created_at    DateTime?       @db.Timestamp(0)
+  updated_at    DateTime?       @db.Timestamp(0)
+  order_product order_product[]
+  restaurants   restaurants     @relation(fields: [restaurant_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "products_restaurant_id_foreign")
+
+  @@index([restaurant_id], map: "products_restaurant_id_foreign")
+}
+
+model restaurant_typology {
+  id            BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  restaurant_id BigInt      @db.UnsignedBigInt
+  typology_id   BigInt      @db.UnsignedBigInt
+  created_at    DateTime?   @db.Timestamp(0)
+  updated_at    DateTime?   @db.Timestamp(0)
+  restaurants   restaurants @relation(fields: [restaurant_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "restaurant_typology_restaurant_id_foreign")
+  typologies    typologies  @relation(fields: [typology_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "restaurant_typology_typology_id_foreign")
+
+  @@index([restaurant_id], map: "restaurant_typology_restaurant_id_foreign")
+  @@index([typology_id], map: "restaurant_typology_typology_id_foreign")
+}
+
+model restaurants {
+  id                  BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id             BigInt                @db.UnsignedBigInt
+  name                String                @db.VarChar(40)
+  slug                String                @db.VarChar(50)
+  vat_number          String                @unique(map: "restaurants_vat_number_unique") @db.VarChar(50)
+  address             String                @db.VarChar(80)
+  postal_code         String?               @db.VarChar(5)
+  city                String                @db.VarChar(20)
+  business_times      String?               @db.VarChar(255)
+  phone_number        String                @unique(map: "restaurants_phone_number_unique") @db.VarChar(15)
+  delivery_cost       Decimal               @default(0.00) @db.Decimal(4, 2)
+  min_purchase        Decimal               @default(0.00) @db.Decimal(4, 2)
+  image               String?               @db.VarChar(255)
+  created_at          DateTime?             @db.Timestamp(0)
+  updated_at          DateTime?             @db.Timestamp(0)
+  orders              orders[]
+  products            products[]
+  restaurant_typology restaurant_typology[]
+  users               users                 @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "restaurants_user_id_foreign")
+
+  @@index([user_id], map: "restaurants_user_id_foreign")
+}
+
+model typologies {
+  id                  BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  name                String                @db.VarChar(25)
+  slug                String                @db.VarChar(30)
+  image               String                @db.VarChar(255)
+  created_at          DateTime?             @db.Timestamp(0)
+  updated_at          DateTime?             @db.Timestamp(0)
+  restaurant_typology restaurant_typology[]
+}
+
+model users {
+  id                BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  name              String        @db.VarChar(255)
+  email             String        @unique(map: "users_email_unique") @db.VarChar(255)
+  email_verified_at DateTime?     @db.Timestamp(0)
+  password          String        @db.VarChar(255)
+  remember_token    String?       @db.VarChar(100)
+  created_at        DateTime?     @db.Timestamp(0)
+  updated_at        DateTime?     @db.Timestamp(0)
+  restaurants       restaurants[]
+}
