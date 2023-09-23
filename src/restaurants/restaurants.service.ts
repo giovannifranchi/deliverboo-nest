@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
-import { Prisma, restaurants } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
