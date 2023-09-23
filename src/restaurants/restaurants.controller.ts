@@ -3,6 +3,7 @@ import { RestaurantsService } from './restaurants.service';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { storage } from 'src/config/multer.config';
 
 
 @Controller('restaurants')
@@ -10,8 +11,8 @@ export class RestaurantsController {
   constructor(private readonly restaurantsService: RestaurantsService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('imagine'))
-  create(@UploadedFile()file:File, @Body() createRestaurantDto: CreateRestaurantDto) {
+  @UseInterceptors(FileInterceptor('imagine', { storage: storage })) //use this middleware to automatically store uploaded file
+  create(@UploadedFile()file:Express.Multer.File, @Body() createRestaurantDto: CreateRestaurantDto) {
     return this.restaurantsService.create(createRestaurantDto, file);
   }
 
