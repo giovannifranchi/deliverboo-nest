@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { Prisma, restaurants } from '@prisma/client';
@@ -15,8 +15,16 @@ export class RestaurantsService {
     return this.prisma.restaurants.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} restaurant`;
+  async findOne(id: number) {
+    const restaurant = await this.prisma.restaurants.findUnique({
+      where: {
+        id: id
+      }
+    });
+
+    if(!restaurant) throw new NotFoundException({ message: `Restaurant with ID ${id} not found` });
+
+    return restaurant;
   }
 
   update(id: number, updateRestaurantDto: UpdateRestaurantDto) {
