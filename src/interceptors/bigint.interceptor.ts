@@ -14,10 +14,16 @@ export class BigIntInterceptor implements NestInterceptor {
       return data.map(item => this.transform(item));
     } else if (typeof data === 'object' && data !== null) {
       for (const key in data) {
-        if (typeof data[key] === 'bigint') {
-          data[key] = data[key].toString();
-        } else if (typeof data[key] === 'object') {
-          data[key] = this.transform(data[key]);
+        if (data.hasOwnProperty(key)) { // Ensure the key belongs to the object, not its prototype
+          if (typeof data[key] === 'bigint') {
+            // Check if the property is writable
+            const descriptor = Object.getOwnPropertyDescriptor(data, key);
+            if (descriptor && descriptor.writable) {
+              data[key] = data[key].toString();
+            }
+          } else if (typeof data[key] === 'object') {
+            data[key] = this.transform(data[key]);
+          }
         }
       }
     }

@@ -8,14 +8,17 @@ import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 @Injectable()
 export class RestaurantsService {
   constructor(private prisma: PrismaService){}
-  async create(createRestaurantDto: CreateRestaurantDto) {
+  async create(createRestaurantDto: CreateRestaurantDto, file: File) {
     try{
+
+      return file;
       createRestaurantDto.slug = slugify(createRestaurantDto.name, {lower: true, strict: true});
       const { restaurant_typologyIds, ...restaurantData } = createRestaurantDto;
   
       const createdReastaurant = await this.prisma.restaurants.create({
         data: restaurantData
       })
+
   
       if(restaurant_typologyIds && restaurant_typologyIds.length > 0){
         await this.prisma.restaurant_typology.createMany({
