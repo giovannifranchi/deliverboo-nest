@@ -2,12 +2,21 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { PrismaService } from 'src/prisma.service';
+import slugify from 'slugify';
 
 @Injectable()
 export class RestaurantsService {
   constructor(private prisma: PrismaService){}
   create(createRestaurantDto: CreateRestaurantDto) {
-    return 'This action adds a new restaurant';
+    try{
+      createRestaurantDto.slug = slugify(createRestaurantDto.name, {lower: true, strict: true});
+      
+      return this.prisma.restaurants.create({
+        data: createRestaurantDto
+      });
+    }catch(error){
+      return new Error(error)
+    }
   }
 
   async allRestaurant() {

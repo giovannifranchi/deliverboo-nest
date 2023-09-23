@@ -10,3 +10,5 @@ npx prisma generate
 
 how to fix bigInt conversion problem:
 -- create an interceptor folder in which you create a interceptor class and the you register it in app.module provider in an object with peroperties -provide:APP_ITERCEPTOR -useClass:bigintinterceptor file
+
+add slugify for automatic slugs
