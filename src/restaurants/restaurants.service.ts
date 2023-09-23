@@ -15,35 +15,40 @@ export class RestaurantsService {
     return this.prisma.restaurants.findMany();
   }
 
-  async allFilteredRestaurant(typologies: number[]){
-    const restaurants = await  this.prisma.restaurants.findMany({
-      where: {
-        restaurant_typology: {
-          some: {
-            typology_id: {
-              in: typologies
-            }
-          }
+  async allFilteredRestaurant(typologies: number[]) {
+
+    const andConditions = typologies.map(typologyId => ({
+      restaurant_typology: {
+        some: {
+          typology_id: typologyId
         }
+      }
+    }));
+  
+    const restaurants = await this.prisma.restaurants.findMany({
+      where: {
+        AND: andConditions
       }, 
       include: {
-        restaurant_typology:{
+        restaurant_typology: {
           include: {
             typologies: true
           }
         }
       }
-    })
-
-    if(!restaurants) throw new NotFoundException({message: 'no restaurants with this type'});
-
+    });
+  
+    if(!restaurants || restaurants.length === 0) {
+      throw new NotFoundException({message: 'No restaurants with these types'});
+    }
+  
     const flattedRestaurants = restaurants.map((restaurant) => {
-      return { ... restaurant, restaurant_typology: restaurant.restaurant_typology.map(rt => rt.typologies) };
-    })
-
+      return { ...restaurant, restaurant_typology: restaurant.restaurant_typology.map(rt => rt.typologies) };
+    });
+  
     return flattedRestaurants;
   }
-
+  
   async findOne(slug: string) {
     const restaurant = await this.prisma.restaurants.findFirst({
       where: {
