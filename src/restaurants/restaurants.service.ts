@@ -3,27 +3,33 @@ import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { PrismaService } from 'src/prisma.service';
 import slugify from 'slugify';
+import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 
 @Injectable()
 export class RestaurantsService {
   constructor(private prisma: PrismaService){}
-  create(createRestaurantDto: CreateRestaurantDto) {
-    createRestaurantDto.slug = slugify(createRestaurantDto.name, {lower: true, strict: true});
-    const { restaurant_typologyIds, ...restaurantData } = createRestaurantDto;
+  async create(createRestaurantDto: CreateRestaurantDto) {
     try{
-      return this.prisma.restaurants.create({
-        data: {
-          ...restaurantData,
-          restaurant_typology: {
-            create: restaurant_typologyIds.map((tipologyId) => ({ //this is same as Laravel's sync
-              typology_id: tipologyId
-            }))
-          }
-        }
-      });
+      createRestaurantDto.slug = slugify(createRestaurantDto.name, {lower: true, strict: true});
+      const { restaurant_typologyIds, ...restaurantData } = createRestaurantDto;
+  
+      const createdReastaurant = await this.prisma.restaurants.create({
+        data: restaurantData
+      })
+  
+      if(restaurant_typologyIds && restaurant_typologyIds.length > 0){
+        await this.prisma.restaurant_typology.createMany({
+          data: restaurant_typologyIds.map((id) => {
+            return {restaurant_id: createdReastaurant.id, typology_id: id}
+          })
+        })
+      }
+
+      return createdReastaurant;
     }catch(error){
-      return new Error(error)
+      return HttpErrorByCode;
     }
+
   }
 
   async allRestaurant() {
