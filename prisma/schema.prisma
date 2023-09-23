@@ -6,7 +6,6 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-
 model categories {
   id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
   name       String    @db.VarChar(40)
