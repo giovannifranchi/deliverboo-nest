@@ -19,12 +19,32 @@ export class RestaurantsService {
     const restaurant = await this.prisma.restaurants.findUnique({
       where: {
         id: id
+      },
+      include: {
+        users: {
+          select: {
+            name: true,
+            email: true
+          }
+        },
+        restaurant_typology: {
+          select: {
+            typologies: true
+          },
+        },
+        products: true
       }
     });
 
     if(!restaurant) throw new NotFoundException({ message: `Restaurant with ID ${id} not found` });
+    
+    //USE THIS PATH TO FLATTEN MANY TO MANY RELASHIONSHIPS INTO AN ARRAY OF JOINED OBJECTS AND OVERWRITE ITS PROPERTY
+    const flatTypologies = restaurant.restaurant_typology.map(rt => rt.typologies);
 
-    return restaurant;
+    return {
+      ...restaurant, 
+      restaurant_typology: flatTypologies
+    };
   }
 
   update(id: number, updateRestaurantDto: UpdateRestaurantDto) {
