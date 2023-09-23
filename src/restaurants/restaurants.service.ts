@@ -8,10 +8,18 @@ import slugify from 'slugify';
 export class RestaurantsService {
   constructor(private prisma: PrismaService){}
   create(createRestaurantDto: CreateRestaurantDto) {
+    createRestaurantDto.slug = slugify(createRestaurantDto.name, {lower: true, strict: true});
+    const { restaurant_typologyIds, ...restaurantData } = createRestaurantDto;
     try{
-      createRestaurantDto.slug = slugify(createRestaurantDto.name, {lower: true, strict: true});
       return this.prisma.restaurants.create({
-        data: createRestaurantDto
+        data: {
+          ...restaurantData,
+          restaurant_typology: {
+            create: restaurant_typologyIds.map((tipologyId) => ({ //this is same as Laravel's sync
+              typology_id: tipologyId
+            }))
+          }
+        }
       });
     }catch(error){
       return new Error(error)
