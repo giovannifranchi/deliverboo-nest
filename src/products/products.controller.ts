@@ -35,7 +35,7 @@ export class ProductsController {
     return this.productsService.update(restaurantSlug, productSlug, updateProductDto, file);
   }
 
-  @Delete(':id')
+  @Delete(':slug/products/:id')
   remove(@Param('id') id: string) {
     return this.productsService.remove(+id);
   }

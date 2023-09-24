@@ -125,7 +125,16 @@ export class ProductsService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: number): Promise<void> {
+    const deletedProduct = await this.prisma.products.delete({
+      where: {
+        id: id,
+      }
+    })
+
+    if (!deletedProduct) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
   }
 }
