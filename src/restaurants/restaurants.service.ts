@@ -4,18 +4,22 @@ import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { PrismaService } from 'src/prisma.service';
 import slugify from 'slugify';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
+import { Express } from 'express';
 
 @Injectable()
 export class RestaurantsService {
   constructor(private prisma: PrismaService){}
-  async create(createRestaurantDto: CreateRestaurantDto) {
+  async create(createRestaurantDto: CreateRestaurantDto, file: Express.Multer.File) {
     try{
+
       createRestaurantDto.slug = slugify(createRestaurantDto.name, {lower: true, strict: true});
+      createRestaurantDto.image = file ? 'uploads/' + file.filename : null;
       const { restaurant_typologyIds, ...restaurantData } = createRestaurantDto;
   
       const createdReastaurant = await this.prisma.restaurants.create({
         data: restaurantData
       })
+
   
       if(restaurant_typologyIds && restaurant_typologyIds.length > 0){
         await this.prisma.restaurant_typology.createMany({
@@ -26,8 +30,10 @@ export class RestaurantsService {
       }
 
       return createdReastaurant;
+
     }catch(error){
-      return HttpErrorByCode;
+      console.log(error);
+      return error;
     }
 
   }
