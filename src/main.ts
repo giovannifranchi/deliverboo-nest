@@ -10,6 +10,6 @@ async function bootstrap() {
     prefix: '/uploads/',
   });  // this will make files available at /uploads/filename
 
-  await app.listen(3000);
+  await app.listen(3030);
 }
 bootstrap();
