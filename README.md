@@ -13,3 +13,5 @@ how to fix bigInt conversion problem:
 
 add slugify for automatic slugs
 add npm install multer @nestjs/platform-express for file interception and storage
+
+change is_visible default to nullable in database and launch npm prisma db push (Todo: fix the error);

@@ -31,12 +31,10 @@ export class ProductsService {
         return createdProduct;
 
     } catch(error) {
-      
+
       console.log(error);
       return error;
     }
-
-   
   }
 
   // Get the restaurant using the slug, use its id to find the products connected to the restaurant
@@ -87,8 +85,44 @@ export class ProductsService {
     return product;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(restaurantSlug: string, productSlug: string, updateProductDto: UpdateProductDto, file: Express.Multer.File) {
+    try {
+
+      const restaurant = await this.prisma.restaurants.findFirst({
+        where: {
+          slug: restaurantSlug,
+        }
+      });
+  
+      if (!restaurant) {
+        throw new NotFoundException(`Restaurant with slug '${restaurantSlug}' not found`);
+      }
+      
+      updateProductDto.slug = slugify(updateProductDto.name, {lower: true, strict: true});
+      updateProductDto.image = file ? 'uploads/' + file.filename : null;
+      const { ...productData } = updateProductDto
+
+      const product = await this.prisma.products.findFirst({
+        where: {
+          slug: productSlug,
+        }
+      })
+  
+      const createdProduct = await this.prisma.products.update({
+        where: {
+          restaurant_id: restaurant.id,
+          id: product.id,
+        },
+        data: productData
+      }) 
+  
+        return createdProduct;
+
+    } catch(error) {
+
+      console.log(error);
+      return error;
+    }
   }
 
   remove(id: number) {

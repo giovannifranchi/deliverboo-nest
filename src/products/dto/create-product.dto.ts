@@ -1,4 +1,4 @@
-import { IsBoolean, IsDecimal, IsInt, IsOptional, IsString, Length, MaxLength } from "class-validator";
+import { IsBoolean, IsNumber, IsInt, IsOptional, IsString, Length, MaxLength } from "class-validator";
 
 export class CreateProductDto {
 
@@ -26,12 +26,12 @@ export class CreateProductDto {
     @MaxLength(255)
     image?: string;
 
-    @IsDecimal()
+    @IsNumber()
     price: number;
 
-    @IsDecimal()
+    @IsNumber()
     discount: number;
 
-    @IsBoolean()
-    is_visible: boolean;
+    @IsOptional()
+    is_visible: string;
 }
