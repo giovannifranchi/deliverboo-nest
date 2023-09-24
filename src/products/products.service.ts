@@ -2,12 +2,41 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma.service';
+import slugify from 'slugify';
 
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) { }
-  create(createProductDto: CreateProductDto) {
-    return 'This action adds a new product';
+  
+  async create(slug: string, createProductDto: CreateProductDto, file: Express.Multer.File) {
+    
+    try {
+
+      const restaurant = await this.prisma.restaurants.findFirst({
+        where: {
+          slug: slug,
+        }
+      });
+  
+      
+      createProductDto.slug = slugify(createProductDto.name, {lower: true, strict: true});
+      createProductDto.image = file ? 'uploads/' + file.filename : null;
+      createProductDto.restaurant_id = restaurant.id as unknown as number;
+      const { ...productData } = createProductDto
+  
+      const createdProduct = await this.prisma.products.create({
+        data: productData
+      }) 
+  
+        return createdProduct;
+
+    } catch(error) {
+      
+      console.log(error);
+      return error;
+    }
+
+   
   }
 
   // Get the restaurant using the slug, use its id to find the products connected to the restaurant
@@ -33,8 +62,29 @@ export class ProductsService {
 
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(restaurantSlug: string, productSlug: string) {
+    const restaurant = await this.prisma.restaurants.findFirst({
+      where: {
+        slug: restaurantSlug,
+      }
+    });
+
+    if (!restaurant) {
+      throw new NotFoundException(`Restaurant with slug '${restaurantSlug}'`)
+    }
+
+    const product = await this.prisma.products.findFirst({
+      where: {
+        restaurant_id: restaurant.id,
+        slug: productSlug,
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with slug '${productSlug}'`)
+    }
+
+    return product;
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
